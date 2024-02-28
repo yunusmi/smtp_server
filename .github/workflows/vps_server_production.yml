@@ -1,0 +1,59 @@
+name: Auto-update app on production VPS
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    name: Deploy latest production updates of app on VPS
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run commands on remote VPS server
+        env:
+          PRIVATE_KEY: ${{secrets.PROD_KEY}}
+          HOSTNAME: ${{secrets.PROD_HOST}}
+          USER_NAME: ${{secrets.PROD_USER}}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          echo "Script execution started."
+          source ~/.nvm/nvm.sh
+          nvm use v18.18.0
+          PM2_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/pm2"
+          CROSS_ENV_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/cross-env"
+          TSC_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/tsc"
+          if [ -f "$PM2_PATH" ]; then
+            $PM2_PATH stop all
+            echo "pm2 stop all executed."
+          else
+            echo "pm2 not found at $PM2_PATH."
+          fi
+          cd /var/www/
+          sudo rm -r -f ./smtp_server/
+          mkdir smtp_server
+          cd smtp_server
+          git init
+          git remote add origin https://$SMTP_DEPLOYMENT_KEY@https://github.com/yunusmi/smtp_server.git
+          git pull origin main
+          if [ $? -eq 0 ]; then
+            echo 'git pull success.'
+          else
+            echo 'git pull failure.'
+            exit 1;
+          fi
+          npm ci
+          if [ -f "$CROSS_ENV_PATH" ]; then
+          $TSC_PATH
+          echo "tsc executed."
+          else
+          echo "tsc not found at $TSC_PATH."
+          fi
+          $CROSS_ENV_PATH NODE_ENV=production $PM2_PATH start ./dist/app.js
+          $PM2_PATH save
+          echo "Script execution completed."
+          '
