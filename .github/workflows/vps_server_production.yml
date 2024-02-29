@@ -39,7 +39,7 @@ jobs:
           mkdir smtp_server
           cd smtp_server
           git init
-          git remote add origin https://$SMTP_DEPLOYMENT_KEY@https://github.com/yunusmi/smtp_server.git
+          git remote add origin https://$SMTP_DEPLOYMENT_KEY@github.com/yunusmi/smtp_server.git
           git pull origin main
           if [ $? -eq 0 ]; then
             echo 'git pull success.'
