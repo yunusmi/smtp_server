@@ -43,10 +43,13 @@ jobs:
           fi
           echo 'Install nodejs dependencies'
           npm ci
+          echo 'Finished installing nodejs dependencies'
           echo 'Compiling from TS'
           npx tsc
+          echo 'Compiling has done successfully'
           echo 'Starting application'
           npx cross-env NODE_ENV=production pm2 start ./dist/app.js
+          echo 'Application has been started successfully'
           pm2 save
-          echo "Script execution completed"
+          echo 'Script execution completed'
           '
