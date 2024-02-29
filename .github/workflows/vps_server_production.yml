@@ -18,7 +18,7 @@ jobs:
           PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
           HOSTNAME: ${{secrets.PROD_HOST}}
           USER_NAME: ${{secrets.PROD_USER}}
-          SMTP_DEPLOYMENT_KEY: ${{secrets.SMTP_DEPLOYMENT_KEY}}
+          GITHUB_TOKEN: ${{secrets.SMTP_DEPLOYMENT_KEY}}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
@@ -39,7 +39,7 @@ jobs:
           mkdir smtp_server
           cd smtp_server
           git init
-          git remote add origin https://$SMTP_DEPLOYMENT_KEY@https://github.com/yunusmi/smtp_server.git
+          git remote add origin https://$GITHUB_TOKEN@github.com/yunusmi/smtp_server.git
           git pull origin main
           if [ $? -eq 0 ]; then
             echo 'git pull success.'
