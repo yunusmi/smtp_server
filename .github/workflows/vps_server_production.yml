@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up SSH key
-        run: echo "$PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+        run: echo "${{secrrets.PRIVATE_KEY}}" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
       - name: Add VPS host to known hosts
         run: ssh-keyscan -H ${{secrets.PROD_HOST}} >> ~/.ssh/known_hosts
