@@ -49,7 +49,7 @@ jobs:
           echo 'Compiling has done successfully'
           echo 'Starting application'
           npx cross-env NODE_ENV=production pm2 start ./dist/app.js
-          echo 'Application has been started successfully'
+          echo 'Application has started successfully'
           pm2 save
           echo 'Script execution completed'
           '
