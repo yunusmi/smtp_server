@@ -23,18 +23,19 @@ jobs:
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
           echo "Script execution started."
-          source ~/.nvm/nvm.sh
-          nvm use v18.18.0
-          PM2_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/pm2"
-          CROSS_ENV_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/cross-env"
-          TSC_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/tsc"
-          if [ -f "$PM2_PATH" ]; then
-            $PM2_PATH stop all
-            echo "pm2 stop all executed."
-          else
-            echo "pm2 not found at $PM2_PATH."
-          fi
+          # source ~/.nvm/nvm.sh
+          # nvm use v18.18.0
+          # PM2_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/pm2"
+          # CROSS_ENV_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/cross-env"
+          # TSC_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/tsc"
+          # if [ -f "$PM2_PATH" ]; then
+          #   $PM2_PATH stop all
+          #   echo "pm2 stop all executed."
+          # else
+          #   echo "pm2 not found at $PM2_PATH."
+          # fi
           cd /var/www/
+          pm2 stop all
           sudo rm -r -f ./smtp_server/
           mkdir smtp_server
           cd smtp_server
@@ -48,13 +49,15 @@ jobs:
             exit 1;
           fi
           npm ci
-          if [ -f "$CROSS_ENV_PATH" ]; then
-          $TSC_PATH
-          echo "tsc executed."
-          else
-          echo "tsc not found at $TSC_PATH."
-          fi
-          $CROSS_ENV_PATH NODE_ENV=production $PM2_PATH start ./dist/app.js
-          $PM2_PATH save
+          # if [ -f "$CROSS_ENV_PATH" ]; then
+          # $TSC_PATH
+          # echo "tsc executed."
+          # else
+          # echo "tsc not found at $TSC_PATH."
+          # fi
+          tsc
+          # $CROSS_ENV_PATH NODE_ENV=production $PM2_PATH start ./dist/app.js
+          cross-env NODE_ENV=production pm2 start ./dist/app.js
+          pm2 save
           echo "Script execution completed."
           '
