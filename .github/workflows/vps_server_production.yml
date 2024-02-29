@@ -55,9 +55,9 @@ jobs:
           # else
           # echo "tsc not found at $TSC_PATH."
           # fi
-          tsc
+          npx tsc 
           # $CROSS_ENV_PATH NODE_ENV=production $PM2_PATH start ./dist/app.js
-          cross-env NODE_ENV=production pm2 start ./dist/app.js
+          npx cross-env NODE_ENV=production pm2 start ./dist/app.js
           pm2 save
           echo "Script execution completed."
           '

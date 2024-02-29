@@ -1,5 +1,5 @@
 {
-  "name": "SMTP server",
+  "name": "sms_server",
   "version": "1.0.0",
   "description": "SMTP server to send email from your apps via your prepared server",
   "main": "./src/app.ts",
