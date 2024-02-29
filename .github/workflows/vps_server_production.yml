@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     if: github.event.pull_request.merged == true
-    name: Deploy latest production updates of app on VPS
+    name: Deploy latest updates to production server
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -22,42 +22,31 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          echo "Script execution started."
-          # source ~/.nvm/nvm.sh
-          # nvm use v18.18.0
-          # PM2_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/pm2"
-          # CROSS_ENV_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/cross-env"
-          # TSC_PATH="/home/ubuntu/.nvm/versions/node/v18.18.0/bin/tsc"
-          # if [ -f "$PM2_PATH" ]; then
-          #   $PM2_PATH stop all
-          #   echo "pm2 stop all executed."
-          # else
-          #   echo "pm2 not found at $PM2_PATH."
-          # fi
+          echo 'Script execution started'
           cd /var/www/
+          echo 'Stopping application'
           pm2 stop all
+          echo 'Removing old project'
           sudo rm -r -f ./smtp_server/
           mkdir smtp_server
           cd smtp_server
+          echo 'Initialization empty local repository'
           git init
+          echo 'Adding remote repository'
           git remote add origin https://$GITHUB_TOKEN@github.com/yunusmi/smtp_server.git
           git pull origin main
           if [ $? -eq 0 ]; then
-            echo 'git pull success.'
+            echo 'GIT pull success'
           else
-            echo 'git pull failure.'
+            echo 'GIT pull failure'
             exit 1;
           fi
+          echo 'Install nodejs dependencies'
           npm ci
-          # if [ -f "$CROSS_ENV_PATH" ]; then
-          # $TSC_PATH
-          # echo "tsc executed."
-          # else
-          # echo "tsc not found at $TSC_PATH."
-          # fi
-          npx tsc 
-          # $CROSS_ENV_PATH NODE_ENV=production $PM2_PATH start ./dist/app.js
+          echo 'Compiling from TS'
+          npx tsc
+          echo 'Starting application'
           npx cross-env NODE_ENV=production pm2 start ./dist/app.js
           pm2 save
-          echo "Script execution completed."
+          echo "Script execution completed"
           '
