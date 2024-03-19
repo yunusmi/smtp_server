@@ -4,7 +4,7 @@ echo 'debconf debconf/frontend select noninteractive'
 apt purge -y mailutils
 apt purge -y certbot
 
-apt autoremove
+apt autoremove -y
 
 if [ -d "/etc/ssl/postfix" ]; then
   rm -rf /etc/ssl/postfix
