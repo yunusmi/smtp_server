@@ -1,6 +1,7 @@
 echo "Start uninstalling SMTP server"
 
 echo 'debconf debconf/frontend select noninteractive'
+
 apt purge -y mailutils
 apt purge -y certbot
 
