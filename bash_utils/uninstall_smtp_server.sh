@@ -4,6 +4,10 @@ echo 'debconf debconf/frontend select noninteractive'
 
 apt purge -y mailutils
 apt purge -y certbot
+apt purge -y sendmail
+
+apt purge -y opendkim
+apt purge -y opendkim-tools
 
 apt autoremove -y
 
@@ -13,6 +17,10 @@ fi
 
 if [ -d "/etc/letsencrypt" ]; then
   rm -rf /etc/letsencrypt
+fi
+
+if [ -d "/etc/opendkim" ]; then
+  rm -rf /etc/opendkim
 fi
 
 sed -i '/DOMAIN_NAME/d' /etc/environment

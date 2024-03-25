@@ -6,6 +6,8 @@ echo 'debconf debconf/frontend select noninteractive'
 
 apt-get install -y mailutils
 
+apt-get install -y sendmail
+
 echo "Type your main domain name (ex. example.com):"
 read DOMAIN_NAME
 
@@ -14,6 +16,14 @@ read SMTP_HOST
 
 echo "DOMAIN_NAME=$DOMAIN_NAME" >> /etc/environment
 echo "SMTP_HOST=$SMTP_HOST" >> /etc/environment
+
+hostnamectl set-hostname $SMTP_HOST
+
+sed -i '/127.0.0.1/d' /etc/hostname
+
+echo "127.0.0.1 $SMTP_HOST" >> /etc/hostname
+
+systemctl restart systemd-logind.service
 
 apt-get install -y certbot
 
@@ -75,7 +85,7 @@ mydestination = $DOMAIN_NAME, $SMTP_HOST, localhost.$SMTP_HOST, localhost
 mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
 mailbox_size_limit = 0
 recipient_delimiter = +
-inet_interfaces = loopback_only
+inet_interfaces = all
 inet_protocols = all" >> /etc/postfix/main.cf
 
 iptables -A INPUT -p tcp --dport 465 -j ACCEPT
@@ -96,4 +106,8 @@ echo "Saving up system settings"
 systemctl restart postfix
 
 echo "Enabling SMTP server on system start up"
+
 systemctl enable postfix
+systemctl enable sendmail
+
+echo "SMTP server successfully completed installing and configured"
