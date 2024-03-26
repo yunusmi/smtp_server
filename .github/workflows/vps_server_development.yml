@@ -1,14 +1,11 @@
-name: Auto-update app on production VPS
+name: Auto-update app on development VPS
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
-      - main
+      - dev
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true
-    name: Deploy latest updates to production server
+    name: Deploy latest updates to development server
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -34,7 +31,7 @@ jobs:
           git init
           echo 'Adding remote repository'
           git remote add origin https://$GITHUB_TOKEN@github.com/yunusmi/smtp_server.git
-          git pull origin main
+          git pull origin dev
           if [ $? -eq 0 ]; then
             echo 'GIT pull success'
           else
