@@ -1,15 +1,18 @@
+#!/bin/bash
+set -e
+
+export DEBIAN_FRONTEND=noninteractive
+
 echo "Start uninstalling SMTP server"
 
-echo 'debconf debconf/frontend select noninteractive'
+systemctl stop postfix 2>/dev/null || true
+systemctl stop opendkim 2>/dev/null || true
+systemctl stop nginx 2>/dev/null || true
 
-apt purge -y mailutils
-apt purge -y certbot
-apt purge -y sendmail
+apt-get purge -y postfix mailutils certbot opendkim opendkim-tools nginx python3-certbot-nginx || true
+apt-get autoremove -y
 
-apt purge -y opendkim
-apt purge -y opendkim-tools
-
-apt autoremove -y
+rm -f /etc/nginx/sites-available/api-gateway /etc/nginx/sites-enabled/api-gateway
 
 if [ -d "/etc/ssl/postfix" ]; then
   rm -rf /etc/ssl/postfix
@@ -23,11 +26,16 @@ if [ -d "/etc/opendkim" ]; then
   rm -rf /etc/opendkim
 fi
 
-sed -i '/DOMAIN_NAME/d' /etc/environment
-sed -i '/SMTP_HOST/d' /etc/environment
-sed -i '/HOSTNAME_SSL_PATH/d' /etc/environment
-sed -i '/HOSTNAME_PRIVKEY_PATH/d' /etc/environment
+if [ -d "/etc/postfix" ]; then
+  rm -rf /etc/postfix
+fi
 
-echo 'debconf debconf/frontend select interactive'
+rm -f /etc/opendkim.conf
+
+sed -i '/^DOMAIN_NAME=/d' /etc/environment
+sed -i '/^SMTP_HOST=/d' /etc/environment
+sed -i '/^HOSTNAME_SSL_PATH=/d' /etc/environment
+sed -i '/^HOSTNAME_PRIVKEY_PATH=/d' /etc/environment
+sed -i '/^API_HOST=/d' /etc/environment
 
 echo "SMTP server is removed"
